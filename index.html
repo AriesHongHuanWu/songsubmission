@@ -16,8 +16,9 @@
     };
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet" />
+  <!-- 先載入 Lucide，不能 defer，避免 lucide 未定義 -->
+  <script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.js"></script>
   <script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-  <script defer src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.js"></script>
   <style>
     .glass { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
   </style>
@@ -98,7 +99,7 @@
             <input id="search" placeholder="搜尋歌名或藝名" class="rounded-2xl bg-white/10 focus:bg-white/15 outline-none px-4 py-2 border border-white/10 focus:border-indigo-400 transition" />
           </div>
           <div class="overflow-hidden rounded-2xl border border-white/10">
-            <table class="w-full text-left text-sm">
+            <table class="w-full text左 text-sm">
               <thead class="bg-white/10">
                 <tr>
                   <th class="px-4 py-3">歌名</th>
@@ -118,7 +119,17 @@
   </main>
 
   <script>
-    lucide.createIcons();
+    // 保證 Lucide 可用（原版修：只改載入順序與安全呼叫）
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    } else {
+      window.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          window.lucide.createIcons();
+        }
+      });
+    }
+
     document.getElementById('y').textContent = new Date().getFullYear();
 
     const SUPABASE_URL = 'https://hmhmwkkqbuxgggzldar.supabase.co';
