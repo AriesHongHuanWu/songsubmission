@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Song Submission · Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { display: ['Poppins', 'ui-sans-serif', 'system-ui'], body: ['Inter', 'ui-sans-serif', 'system-ui'] },
+          boxShadow: { glow: '0 0 40px rgba(99,102,241,0.35)' },
+        },
+      },
+    };
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script defer src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.js"></script>
+  <style>
+    .glass { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-indigo-900 via-slate-900 to-black text-slate-100 font-body">
+  <div class="pointer-events-none fixed inset-0 overflow-hidden">
+    <div class="absolute -top-32 -left-16 w-[38rem] h-[38rem] rounded-full bg-indigo-600/30 blur-3xl"></div>
+    <div class="absolute -bottom-40 -right-24 w-[42rem] h-[42rem] rounded-full bg-fuchsia-600/25 blur-3xl"></div>
+  </div>
+
+  <header class="relative z-10 max-w-6xl mx-auto px-6 py-10">
+    <div class="flex items-center justify-between">
+      <h1 class="font-display text-3xl sm:text-4xl font-bold tracking-tight">
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-white to-fuchsia-300">KYE BEEZY · Song Submission</span>
+      </h1>
+      <nav class="flex gap-3 items-center text-sm">
+        <button id="btnTheme" class="glass rounded-xl px-4 py-2 bg-white/5 hover:bg-white/10 transition shadow-glow">Toggle UI</button>
+        <a href="#admin" class="glass rounded-xl px-4 py-2 bg-white/5 hover:bg-white/10 transition">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="relative z-10 max-w-6xl mx-auto px-6 pb-20">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <section class="glass bg-white/5 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-indigo-900/20 border border-white/10">
+        <div class="flex items-center gap-3 mb-6">
+          <i data-lucide="music4" class="w-6 h-6"></i>
+          <h2 class="font-display text-2xl font-semibold">提交你的歌曲</h2>
+        </div>
+        <form id="submitForm" class="space-y-4">
+          <div>
+            <label class="block text-sm text-slate-300 mb-1">歌名</label>
+            <input id="songTitle" required placeholder="例如：Midnight Drive" class="w-full rounded-2xl bg-white/10 focus:bg-white/15 outline-none px-4 py-3 border border-white/10 focus:border-indigo-400 transition" />
+          </div>
+          <div>
+            <label class="block text-sm text-slate-300 mb-1">藝名</label>
+            <input id="artistName" required placeholder="例如：Aries Wu" class="w-full rounded-2xl bg-white/10 focus:bg-white/15 outline-none px-4 py-3 border border-white/10 focus:border-indigo-400 transition" />
+          </div>
+          <div>
+            <label class="block text-sm text-slate-300 mb-1">歌曲網址</label>
+            <input id="songUrl" type="url" inputmode="url" required placeholder="https://..." class="w-full rounded-2xl bg-white/10 focus:bg-white/15 outline-none px-4 py-3 border border-white/10 focus:border-indigo-400 transition" />
+          </div>
+          <button class="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 px-5 py-3 font-semibold shadow-glow">送出</button>
+        </form>
+        <p id="submitMsg" class="mt-4 text-sm text-emerald-300 hidden">已送出，感謝投稿。</p>
+      </section>
+
+      <section id="admin" class="glass bg-white/5 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-indigo-900/20 border border-white/10">
+        <div class="flex items-center gap-3 mb-6">
+          <i data-lucide="shield" class="w-6 h-6"></i>
+          <h2 class="font-display text-2xl font-semibold">管理後台</h2>
+        </div>
+
+        <form id="loginForm" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm text-slate-300 mb-1">管理員 Email</label>
+              <input id="adminEmail" type="email" placeholder="admin@example.com" class="w-full rounded-2xl bg-white/10 focus:bg-white/15 outline-none px-4 py-3 border border-white/10 focus:border-indigo-400 transition" />
+            </div>
+            <div>
+              <label class="block text-sm text-slate-300 mb-1">密碼</label>
+              <input id="adminPassword" type="password" placeholder="••••••••" class="w-full rounded-2xl bg-white/10 focus:bg-white/15 outline-none px-4 py-3 border border-white/10 focus:border-indigo-400 transition" />
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="btnLogin" class="rounded-2xl px-5 py-3 bg-indigo-500 hover:bg-indigo-400 font-semibold shadow-glow">登入</button>
+            <button id="btnLogout" class="rounded-2xl px-5 py-3 bg-white/10 hover:bg-white/20">登出</button>
+            <span id="loginMsg" class="text-sm text-slate-300"></span>
+          </div>
+        </form>
+
+        <div id="dashboard" class="mt-8 hidden">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+              <h3 class="font-display text-xl font-semibold">投稿清單</h3>
+            </div>
+            <input id="search" placeholder="搜尋歌名或藝名" class="rounded-2xl bg-white/10 focus:bg-white/15 outline-none px-4 py-2 border border-white/10 focus:border-indigo-400 transition" />
+          </div>
+          <div class="overflow-hidden rounded-2xl border border-white/10">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-white/10">
+                <tr>
+                  <th class="px-4 py-3">歌名</th>
+                  <th class="px-4 py-3">藝名</th>
+                  <th class="px-4 py-3">連結</th>
+                  <th class="px-4 py-3">時間</th>
+                </tr>
+              </thead>
+              <tbody id="rows" class="divide-y divide-white/10"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="mt-10 text-center text-xs text-slate-400">© <span id="y"></span> KYE BEEZY · Built on Supabase + GitHub Pages</footer>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    const SUPABASE_URL = 'https://hmhmwkkqbuxgggzldar.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable__vd5BFwOE9xSugatu5LsSA_P-R3lq_D';
+    const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    document.getElementById('btnTheme').addEventListener('click', () => {
+      document.body.classList.toggle('via-indigo-950');
+    });
+
+    const submitForm = document.getElementById('submitForm');
+    const submitMsg = document.getElementById('submitMsg');
+    submitForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('songTitle').value.trim();
+      const artist = document.getElementById('artistName').value.trim();
+      const url = document.getElementById('songUrl').value.trim();
+      if (!title || !artist || !url) return;
+
+      const { error } = await supa.from('submissions').insert({ song_title: title, artist_name: artist, song_url: url });
+      if (error) {
+        submitMsg.textContent = '提交失敗：' + error.message;
+        submitMsg.classList.remove('text-emerald-300');
+        submitMsg.classList.add('text-rose-300');
+        submitMsg.classList.remove('hidden');
+        return;
+      }
+      submitMsg.textContent = '已送出，感謝投稿。';
+      submitMsg.classList.remove('text-rose-300');
+      submitMsg.classList.add('text-emerald-300');
+      submitMsg.classList.remove('hidden');
+      submitForm.reset();
+    });
+
+    const btnLogin = document.getElementById('btnLogin');
+    const btnLogout = document.getElementById('btnLogout');
+    const loginMsg = document.getElementById('loginMsg');
+    const dashboard = document.getElementById('dashboard');
+
+    btnLogin.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value;
+      const { error } = await supa.auth.signInWithPassword({ email, password });
+      if (error) {
+        loginMsg.textContent = '登入失敗：' + error.message;
+        return;
+      }
+      loginMsg.textContent = '已登入。';
+      await refreshRows();
+      startPolling();
+    });
+
+    btnLogout.addEventListener('click', async (e) => {
+      e.preventDefault();
+      stopPolling();
+      await supa.auth.signOut();
+      loginMsg.textContent = '已登出。';
+      dashboard.classList.add('hidden');
+    });
+
+    supa.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        dashboard.classList.remove('hidden');
+        await refreshRows();
+        startPolling();
+      } else {
+        stopPolling();
+        dashboard.classList.add('hidden');
+      }
+    });
+
+    const rows = document.getElementById('rows');
+    const search = document.getElementById('search');
+    search.addEventListener('input', () => renderRows(cacheRows.filter(fuzzy(search.value))));
+    let cacheRows = [];
+
+    function fuzzy(q) {
+      q = (q || '').toLowerCase();
+      return (r) => !q || r.song_title.toLowerCase().includes(q) || r.artist_name.toLowerCase().includes(q);
+    }
+
+    async function refreshRows() {
+      const { data, error } = await supa.from('submissions').select('*').order('created_at', { ascending: false });
+      if (error) { loginMsg.textContent = '讀取失敗：' + error.message; return; }
+      cacheRows = data || [];
+      renderRows(cacheRows);
+    }
+
+    function renderRows(items) {
+      rows.innerHTML = '';
+      for (const r of items) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-4 py-3 font-medium">${escapeHtml(r.song_title)}</td>
+          <td class="px-4 py-3">${escapeHtml(r.artist_name)}</td>
+          <td class="px-4 py-3"><a class="underline decoration-indigo-400 underline-offset-4 hover:text-indigo-300" href="${escapeAttr(r.song_url)}" target="_blank" rel="noopener">開啟</a></td>
+          <td class="px-4 py-3 text-slate-400">${new Date(r.created_at).toLocaleString()}</td>
+        `;
+        rows.appendChild(tr);
+      }
+    }
+
+    function escapeHtml(s) { return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m])); }
+    function escapeAttr(s) { return (s||'').replace(/["']/g, m => ({'"':'&quot;','\'':'&#39;'}[m])); }
+
+    // 每20秒自動刷新
+    let pollTimer = null;
+
+    function startPolling() {
+      stopPolling();
+      pollTimer = setInterval(refreshRows, 20000); // 20 秒
+    }
+
+    function stopPolling() {
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = null;
+    }
+  </script>
+</body>
+</html>
